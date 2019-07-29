@@ -110,7 +110,7 @@ DatabaseWidget::DatabaseWidget(QSharedPointer<Database> db, QWidget* parent)
     rightHandSideWidget->setLayout(vbox);
     m_entryView = new EntryView(rightHandSideWidget);
 
-    m_mainSplitter->setChildrenCollapsible(false);
+    m_mainSplitter->setChildrenCollapsible(true);
     m_mainSplitter->addWidget(m_groupView);
     m_mainSplitter->addWidget(rightHandSideWidget);
     m_mainSplitter->setStretchFactor(0, 30);
