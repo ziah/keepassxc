@@ -1,0 +1,11 @@
+# Plain build (fastest)
+cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DKEEPASSXC_BUILD_TYPE=Release -DWITH_TESTS=OFF -DWITH_XC_ALL=ON ..
+ninja
+sudo ninja install
+
+
+
+# To build package:
+cmake -DCMAKE_BUILD_TYPE=Release -DKEEPASSXC_BUILD_TYPE=Release -DWITH_TESTS=OFF -DWITH_XC_ALL=ON ..
+make -j16
+sudo checkinstall --pkgname keepassxc --pkgversion 2.5.1+zbuild --pkgrelease 1 --pkggroup utils --pkgsource 'https://www.keepassxc.org/' --maintainer '"Ziah Jyothi <contact@ziah.cc>"' --provides keepassxc

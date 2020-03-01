@@ -36,6 +36,7 @@ public:
     void set(const QString& key, const QByteArray& value);
     void remove(const QString& key);
     void remove(const QStringList& keys);
+    bool rename(const QString& key, const QString& newName);
     bool isEmpty() const;
     void clear();
     void copyDataFrom(const EntryAttachments* other);

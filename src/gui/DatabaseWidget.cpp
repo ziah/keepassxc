@@ -872,6 +872,13 @@ void DatabaseWidget::switchToMainView(bool previousDialogAccepted)
 
     setCurrentWidget(m_mainWidget);
 
+//     if (sender() == m_editGroupWidget) { // Z Added
+//         disconnect(m_editGroupWidget, SIGNAL(createGroupEarly()), this, SLOT(createGroupEarly()));
+//     }
+    if (sender() == m_editEntryWidget) { // Z Added
+        disconnect(m_editEntryWidget, SIGNAL(createEntryEarly()), this, SLOT(createEntryEarly()));
+    }
+
     if (sender() == m_entryView || sender() == m_editEntryWidget) {
         onEntryChanged(m_entryView->currentEntry());
     } else if (sender() == m_groupView || sender() == m_editGroupWidget) {
@@ -912,6 +919,8 @@ void DatabaseWidget::switchToEntryEdit(Entry* entry, bool create)
 
     Q_ASSERT(group);
 
+    connect(m_editEntryWidget, SIGNAL(createEntryEarly()), this, SLOT(createEntryEarly())); // Z Added
+
     // Setup the entry edit widget and display
     m_editEntryWidget->loadEntry(entry, create, false, group->name(), m_db);
     setCurrentWidget(m_editEntryWidget);
@@ -921,6 +930,14 @@ void DatabaseWidget::switchToGroupEdit(Group* group, bool create)
 {
     m_editGroupWidget->loadGroup(group, create, m_db);
     setCurrentWidget(m_editGroupWidget);
+}
+
+void DatabaseWidget::createEntryEarly() { // Z Added
+    m_newEntry->setGroup(m_newParent);
+    m_entryView->setFocus();
+    m_entryView->setCurrentEntry(m_newEntry.take());
+
+    m_newParent = nullptr;
 }
 
 void DatabaseWidget::connectDatabaseSignals()

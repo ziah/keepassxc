@@ -313,7 +313,7 @@ MainWindow::MainWindow()
     m_ui->actionDatabaseClose->setIcon(filePath()->icon("actions", "document-close"));
     m_ui->actionChangeDatabaseSettings->setIcon(filePath()->icon("actions", "document-edit"));
     m_ui->actionChangeMasterKey->setIcon(filePath()->icon("actions", "database-change-key"));
-    m_ui->actionLockDatabases->setIcon(filePath()->icon("actions", "database-lock"));
+    m_ui->actionLockDatabases->setIcon(filePath()->icon("actions", "lock"));
     m_ui->actionQuit->setIcon(filePath()->icon("actions", "application-exit"));
 
     m_ui->actionEntryNew->setIcon(filePath()->icon("actions", "entry-new"));
@@ -324,16 +324,16 @@ MainWindow::MainWindow()
     m_ui->actionEntryCopyUsername->setIcon(filePath()->icon("actions", "username-copy"));
     m_ui->actionEntryCopyPassword->setIcon(filePath()->icon("actions", "password-copy"));
     m_ui->actionEntryCopyURL->setIcon(filePath()->icon("actions", "url-copy"));
-    m_ui->actionEntryDownloadIcon->setIcon(filePath()->icon("actions", "favicon-download"));
+    m_ui->actionEntryDownloadIcon->setIcon(filePath()->icon("actions", "download"));
 
     m_ui->actionGroupNew->setIcon(filePath()->icon("actions", "group-new"));
     m_ui->actionGroupEdit->setIcon(filePath()->icon("actions", "group-edit"));
     m_ui->actionGroupDelete->setIcon(filePath()->icon("actions", "group-delete"));
-    m_ui->actionGroupEmptyRecycleBin->setIcon(filePath()->icon("actions", "group-empty-trash"));
-    m_ui->actionGroupDownloadFavicons->setIcon(filePath()->icon("actions", "favicon-download"));
+    m_ui->actionGroupEmptyRecycleBin->setIcon(filePath()->icon("actions", "user-trash"));
+    m_ui->actionGroupDownloadFavicons->setIcon(filePath()->icon("actions", "download"));
 
     m_ui->actionSettings->setIcon(filePath()->icon("actions", "configure"));
-    m_ui->actionPasswordGenerator->setIcon(filePath()->icon("actions", "password-generator"));
+    m_ui->actionPasswordGenerator->setIcon(filePath()->icon("actions", "password-generate"));
 
     m_ui->actionAbout->setIcon(filePath()->icon("actions", "help-about"));
     m_ui->actionCheckForUpdates->setIcon(filePath()->icon("actions", "system-software-update"));

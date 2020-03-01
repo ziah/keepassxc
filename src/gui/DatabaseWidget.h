@@ -220,6 +220,7 @@ private slots:
     void onEntryChanged(Entry* entry);
     void onGroupChanged(Group* group);
     void onDatabaseModified();
+    void createEntryEarly();
     void connectDatabaseSignals();
     void loadDatabase(bool accepted);
     void unlockDatabase(bool accepted);

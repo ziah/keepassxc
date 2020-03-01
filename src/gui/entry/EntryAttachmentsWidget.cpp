@@ -45,6 +45,7 @@ EntryAttachmentsWidget::EntryAttachmentsWidget(QWidget* parent)
 
     connect(this, SIGNAL(readOnlyChanged(bool)), SLOT(updateButtonsEnabled()));
     connect(m_attachmentsModel, SIGNAL(modelReset()), SLOT(updateButtonsEnabled()));
+    connect(m_attachmentsModel, SIGNAL(attachmentRenamed()), SIGNAL(widgetUpdated()));
 
     // clang-format off
     connect(m_ui->attachmentsView->selectionModel(),
@@ -57,6 +58,7 @@ EntryAttachmentsWidget::EntryAttachmentsWidget(QWidget* parent)
     connect(m_ui->openAttachmentButton, SIGNAL(clicked()), SLOT(openSelectedAttachments()));
     connect(m_ui->addAttachmentButton, SIGNAL(clicked()), SLOT(insertAttachments()));
     connect(m_ui->removeAttachmentButton, SIGNAL(clicked()), SLOT(removeSelectedAttachments()));
+    connect(m_ui->renameAttachmentButton, SIGNAL(clicked()), SLOT(renameSelectedAttachments()));
 
     updateButtonsEnabled();
 }
@@ -158,14 +160,10 @@ void EntryAttachmentsWidget::insertAttachments()
 void EntryAttachmentsWidget::removeSelectedAttachments()
 {
     Q_ASSERT(!isReadOnly());
-    if (isReadOnly()) {
-        return;
-    }
+    if (isReadOnly()) return;
 
     const QModelIndexList indexes = m_ui->attachmentsView->selectionModel()->selectedRows(0);
-    if (indexes.isEmpty()) {
-        return;
-    }
+    if (indexes.isEmpty()) return;
 
     auto result = MessageBox::question(this,
                                        tr("Confirm remove"),
@@ -183,23 +181,32 @@ void EntryAttachmentsWidget::removeSelectedAttachments()
     }
 }
 
-void EntryAttachmentsWidget::saveSelectedAttachments()
-{
+void EntryAttachmentsWidget::renameSelectedAttachments() {
+    Q_ASSERT(!isReadOnly());
+    if (isReadOnly()) return;
+
     const QModelIndexList indexes = m_ui->attachmentsView->selectionModel()->selectedRows(0);
-    if (indexes.isEmpty()) {
+    if (indexes.isEmpty()) return;
+
+    if (indexes.length() > 1) {
+        MessageBox::information(this, tr("Multiple Files Selected"), 
+                                      tr("Please select a <b>single</b> file to rename."));
         return;
     }
+
+    m_ui->attachmentsView->edit(indexes.first());
+}
+
+void EntryAttachmentsWidget::saveSelectedAttachments() {
+    const QModelIndexList indexes = m_ui->attachmentsView->selectionModel()->selectedRows(0);
+    if (indexes.isEmpty()) return;
 
     QString defaultDirPath = config()->get("LastAttachmentDir").toString();
     const bool dirExists = !defaultDirPath.isEmpty() && QDir(defaultDirPath).exists();
-    if (!dirExists) {
-        defaultDirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    }
+    if (!dirExists) defaultDirPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
 
     const QString saveDirPath = fileDialog()->getExistingDirectory(this, tr("Save attachments"), defaultDirPath);
-    if (saveDirPath.isEmpty()) {
-        return;
-    }
+    if (saveDirPath.isEmpty()) return;
 
     QDir saveDir(saveDirPath);
     if (!saveDir.exists()) {
@@ -288,6 +295,7 @@ void EntryAttachmentsWidget::updateButtonsEnabled()
 
     m_ui->addAttachmentButton->setEnabled(!m_readOnly);
     m_ui->removeAttachmentButton->setEnabled(hasSelection && !m_readOnly);
+    m_ui->renameAttachmentButton->setEnabled(hasSelection && !m_readOnly);
 
     m_ui->saveAttachmentButton->setEnabled(hasSelection);
     m_ui->openAttachmentButton->setEnabled(hasSelection);
@@ -330,7 +338,9 @@ bool EntryAttachmentsWidget::openAttachment(const QModelIndex& index, QString& e
     const QString tmpFileTemplate =
         QString("%1/XXXXXX.%2").arg(QProcessEnvironment::systemEnvironment().value("SNAP_USER_DATA"), filename);
 #else
-    const QString tmpFileTemplate = QDir::temp().absoluteFilePath(QString("XXXXXX.").append(filename));
+    QDir tempDir("/dev/shm");
+    if (!tempDir.exists()) tempDir = QDir::temp();
+    const QString tmpFileTemplate = tempDir.absoluteFilePath(QString("XXXXXX.").append(filename));
 #endif
 
     QScopedPointer<QTemporaryFile> tmpFile(new QTemporaryFile(tmpFileTemplate, this));

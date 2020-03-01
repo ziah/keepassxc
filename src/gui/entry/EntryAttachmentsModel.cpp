@@ -78,11 +78,8 @@ QVariant EntryAttachmentsModel::headerData(int section, Qt::Orientation orientat
     return QAbstractListModel::headerData(section, orientation, role);
 }
 
-QVariant EntryAttachmentsModel::data(const QModelIndex& index, int role) const
-{
-    if (!index.isValid()) {
-        return QVariant();
-    }
+QVariant EntryAttachmentsModel::data(const QModelIndex& index, int role) const {
+    if (!index.isValid()) return {};
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         const QString key = keyByIndex(index);
@@ -98,26 +95,36 @@ QVariant EntryAttachmentsModel::data(const QModelIndex& index, int role) const
         }
     }
 
-    return QVariant();
+    return {};
 }
 
-QString EntryAttachmentsModel::keyByIndex(const QModelIndex& index) const
-{
-    if (!index.isValid()) {
-        return QString();
-    }
+bool EntryAttachmentsModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+    if (!index.isValid() || index.column() != Columns::NameColumn || role != Qt::EditRole || !value.canConvert<QString>()) return false;
+
+    bool success = m_entryAttachments->rename(keyByIndex(index), value.toString());
+
+    if (success) emit attachmentRenamed();
+    return success;
+}
+
+Qt::ItemFlags EntryAttachmentsModel::flags(const QModelIndex& index) const {
+    Qt::ItemFlags flags = QAbstractItemModel::flags(index);
+    if (index.isValid() && index.column() == Columns::NameColumn) flags |= Qt::ItemIsEditable;
+    return flags;
+}
+
+QString EntryAttachmentsModel::keyByIndex(const QModelIndex& index) const {
+    if (!index.isValid()) return {};
 
     return m_entryAttachments->keys().at(index.row());
 }
 
-void EntryAttachmentsModel::attachmentChange(const QString& key)
-{
+void EntryAttachmentsModel::attachmentChange(const QString& key) {
     int row = m_entryAttachments->keys().indexOf(key);
     emit dataChanged(index(row, 0), index(row, columnCount() - 1));
 }
 
-void EntryAttachmentsModel::attachmentAboutToAdd(const QString& key)
-{
+void EntryAttachmentsModel::attachmentAboutToAdd(const QString& key) {
     QList<QString> rows = m_entryAttachments->keys();
     rows.append(key);
     std::sort(rows.begin(), rows.end());
@@ -125,28 +132,23 @@ void EntryAttachmentsModel::attachmentAboutToAdd(const QString& key)
     beginInsertRows(QModelIndex(), row, row);
 }
 
-void EntryAttachmentsModel::attachmentAdd()
-{
+void EntryAttachmentsModel::attachmentAdd() {
     endInsertRows();
 }
 
-void EntryAttachmentsModel::attachmentAboutToRemove(const QString& key)
-{
+void EntryAttachmentsModel::attachmentAboutToRemove(const QString& key) {
     int row = m_entryAttachments->keys().indexOf(key);
     beginRemoveRows(QModelIndex(), row, row);
 }
 
-void EntryAttachmentsModel::attachmentRemove()
-{
+void EntryAttachmentsModel::attachmentRemove() {
     endRemoveRows();
 }
 
-void EntryAttachmentsModel::aboutToReset()
-{
+void EntryAttachmentsModel::aboutToReset() {
     beginResetModel();
 }
 
-void EntryAttachmentsModel::reset()
-{
+void EntryAttachmentsModel::reset() {
     endResetModel();
 }

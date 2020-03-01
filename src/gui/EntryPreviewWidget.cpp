@@ -50,7 +50,9 @@ EntryPreviewWidget::EntryPreviewWidget(QWidget* parent)
     // Entry
     m_ui->entryTotpButton->setIcon(filePath()->icon("actions", "chronometer"));
     m_ui->entryCloseButton->setIcon(filePath()->icon("actions", "dialog-close"));
-    m_ui->entryPasswordLabel->setFont(Font::fixedFont());
+    QFont maskedTextFont = Font::fixedFont();
+    maskedTextFont.setLetterSpacing(QFont::AbsoluteSpacing, 2);
+    m_ui->entryPasswordLabel->setFont(maskedTextFont);
     m_ui->togglePasswordButton->setIcon(filePath()->onOffIcon("actions", "password-show"));
     m_ui->toggleEntryNotesButton->setIcon(filePath()->onOffIcon("actions", "password-show"));
     m_ui->toggleGroupNotesButton->setIcon(filePath()->onOffIcon("actions", "password-show"));
@@ -59,13 +61,13 @@ EntryPreviewWidget::EntryPreviewWidget(QWidget* parent)
     m_ui->entryAttachmentsWidget->setButtonsVisible(false);
 
     // Match background of read-only text edit fields with the window
-    m_ui->entryPasswordLabel->setBackgroundRole(QPalette::Window);
-    m_ui->entryUsernameLabel->setBackgroundRole(QPalette::Window);
-    m_ui->entryNotesTextEdit->setBackgroundRole(QPalette::Window);
-    m_ui->groupNotesTextEdit->setBackgroundRole(QPalette::Window);
+//     m_ui->entryPasswordLabel->setBackgroundRole(QPalette::Window); // Z Removed start
+//     m_ui->entryUsernameLabel->setBackgroundRole(QPalette::Window);
+//     m_ui->entryNotesTextEdit->setBackgroundRole(QPalette::Window);
+//     m_ui->groupNotesTextEdit->setBackgroundRole(QPalette::Window);
     // Align notes text with label text
-    m_ui->entryNotesTextEdit->document()->setDocumentMargin(0);
-    m_ui->groupNotesTextEdit->document()->setDocumentMargin(0);
+//     m_ui->entryNotesTextEdit->document()->setDocumentMargin(0);
+//     m_ui->groupNotesTextEdit->document()->setDocumentMargin(0); // Z Removed end
 
     connect(m_ui->entryUrlLabel, SIGNAL(linkActivated(QString)), SLOT(openEntryUrl()));
 
@@ -182,12 +184,16 @@ void EntryPreviewWidget::setPasswordVisible(bool state)
 {
     const QString password = m_currentEntry->resolveMultiplePlaceholders(m_currentEntry->password());
     if (state) {
+        m_ui->entryPasswordLabel->setFont(Font::fixedFont());
         m_ui->entryPasswordLabel->setText(password);
         m_ui->entryPasswordLabel->setCursorPosition(0);
     } else if (password.isEmpty() && config()->get("security/passwordemptynodots").toBool()) {
         m_ui->entryPasswordLabel->setText("");
     } else {
         m_ui->entryPasswordLabel->setText(QString("\u25cf").repeated(6));
+        QFont maskedTextFont = Font::fixedFont();
+        maskedTextFont.setLetterSpacing(QFont::AbsoluteSpacing, 2);
+        m_ui->entryPasswordLabel->setFont(maskedTextFont);
     }
 }
 

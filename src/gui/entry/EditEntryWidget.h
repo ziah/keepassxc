@@ -78,6 +78,7 @@ public:
 signals:
     void editFinished(bool accepted);
     void historyEntryActivated(Entry* entry);
+    void createEntryEarly();
 
 private slots:
     void acceptEntry();

@@ -107,9 +107,29 @@ void EntryAttachments::remove(const QStringList& keys)
         emit removed(key);
     }
 
-    if (isModified) {
-        emit entryAttachmentsModified();
+    if (isModified) emit entryAttachmentsModified();
+}
+
+bool EntryAttachments::rename(const QString& key, const QString& newName) {
+    if (!m_attachments.contains(key)) {
+        Q_ASSERT_X(false, "EntryAttachments::rename", qPrintable(QString("Can't find attachment for key %1").arg(key)));
+        return false;
     }
+    if (m_attachments.contains(newName)) {
+        Q_ASSERT_X(false, "EntryAttachments::rename", qPrintable(QString("New attachment name is already taken: %1").arg(newName)));
+        return false;
+    }
+
+    bool isModified = false;
+
+    if (newName != key) {
+        isModified = true;
+        QByteArray data = m_attachments.take(key);
+        m_attachments.insert(newName, data);
+    }
+
+    if (isModified) emit entryAttachmentsModified();
+    return true;
 }
 
 bool EntryAttachments::isEmpty() const

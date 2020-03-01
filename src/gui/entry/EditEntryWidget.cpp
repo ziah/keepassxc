@@ -65,6 +65,9 @@
 #include "gui/entry/EntryAttributesModel.h"
 #include "gui/entry/EntryHistoryModel.h"
 
+
+#include <iostream>
+
 EditEntryWidget::EditEntryWidget(QWidget* parent)
     : EditWidget(parent)
     , m_entry(nullptr)
@@ -154,9 +157,9 @@ void EditEntryWidget::setupMain()
     m_mainUi->usernameComboBox->setCompleter(m_usernameCompleter);
 
     m_mainUi->togglePasswordButton->setIcon(filePath()->onOffIcon("actions", "password-show"));
-    m_mainUi->togglePasswordGeneratorButton->setIcon(filePath()->icon("actions", "password-generator"));
+    m_mainUi->togglePasswordGeneratorButton->setIcon(filePath()->icon("actions", "password-generate"));
 #ifdef WITH_XC_NETWORKING
-    m_mainUi->fetchFaviconButton->setIcon(filePath()->icon("actions", "favicon-download"));
+    m_mainUi->fetchFaviconButton->setIcon(filePath()->icon("actions", "download"));
     m_mainUi->fetchFaviconButton->setDisabled(true);
 #else
     m_mainUi->fetchFaviconButton->setVisible(false);
@@ -842,7 +845,7 @@ void EditEntryWidget::loadEntry(Entry* entry,
     setPageHidden(m_historyWidget, m_history || m_entry->historyItems().count() < 1);
 
     // Force the user to Save/Discard new entries
-    showApplyButton(!m_create);
+//     showApplyButton(!m_create); // Z Removed
 
     setModified(false);
 }
@@ -1076,6 +1079,8 @@ bool EditEntryWidget::commitEntry()
 #endif
 
     m_historyModel->setEntries(m_entry->historyItems());
+
+    if (m_create && !m_entry->group()) emit createEntryEarly(); // Z Added
 
     showMessage(tr("Entry updated successfully."), MessageWidget::Positive);
     setModified(false);
