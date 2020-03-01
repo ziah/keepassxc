@@ -94,7 +94,7 @@ private slots:
     void removeCurrentAttribute();
     void updateCurrentAttribute();
     void protectCurrentAttribute(bool state);
-    void revealCurrentAttribute();
+    void toggleCurrentAttributeVisibility();
     void updateAutoTypeEnabled();
     void openAutotypeHelp();
     void insertAutoTypeAssoc();

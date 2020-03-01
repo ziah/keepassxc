@@ -154,6 +154,7 @@ DatabaseWidget::DatabaseWidget(QSharedPointer<Database> db, QWidget* parent)
     m_shareLabel->setVisible(false);
 #endif
 
+    m_previewView->setObjectName("previewWidget");
     m_previewView->hide();
     m_previewSplitter->addWidget(m_entryView);
     m_previewSplitter->addWidget(m_previewView);
@@ -275,6 +276,11 @@ bool DatabaseWidget::isEntryEditActive() const
     return currentWidget() == m_editEntryWidget;
 }
 
+bool DatabaseWidget::isGroupEditActive() const
+{
+    return currentWidget() == m_editGroupWidget;
+}
+
 bool DatabaseWidget::isEditWidgetModified() const
 {
     if (currentWidget() == m_editEntryWidget) {
@@ -387,6 +393,8 @@ void DatabaseWidget::createEntry()
 
 void DatabaseWidget::replaceDatabase(QSharedPointer<Database> db)
 {
+    Q_ASSERT(!isEntryEditActive() && !isGroupEditActive());
+
     // Save off new parent UUID which will be valid when creating a new entry
     QUuid newParentUuid;
     if (m_newParent) {
@@ -545,6 +553,14 @@ void DatabaseWidget::deleteEntries(QList<Entry*> selectedEntries)
     }
 
     refreshSearch();
+
+    m_entryView->setFirstEntryActive();
+    auto* currentEntry = currentSelectedEntry();
+    if (currentEntry) {
+        m_previewView->setEntry(currentEntry);
+    } else {
+        m_previewView->setGroup(groupView()->currentGroup());
+    }
 }
 
 bool DatabaseWidget::confirmDeleteEntries(QList<Entry*> entries, bool permanent)
@@ -1387,7 +1403,7 @@ bool DatabaseWidget::lock()
     if (m_db->isModified()) {
         bool saved = false;
         // Attempt to save on exit, but don't block locking if it fails
-        if (config()->get("AutoSaveOnExit").toBool()) {
+        if (config()->get("AutoSaveOnExit").toBool() || config()->get("AutoSaveAfterEveryChange").toBool()) {
             saved = save();
         }
 
@@ -1438,7 +1454,8 @@ bool DatabaseWidget::lock()
 
 void DatabaseWidget::reloadDatabaseFile()
 {
-    if (!m_db || isLocked()) {
+    // Ignore reload if we are locked or currently editing an entry or group
+    if (!m_db || isLocked() || isEntryEditActive() || isGroupEditActive()) {
         return;
     }
 
@@ -1457,6 +1474,11 @@ void DatabaseWidget::reloadDatabaseFile()
             return;
         }
     }
+
+    // Lock out interactions
+    m_entryView->setDisabled(true);
+    m_groupView->setDisabled(true);
+    QApplication::processEvents();
 
     QString error;
     auto db = QSharedPointer<Database>::create(m_db->filePath());
@@ -1497,6 +1519,10 @@ void DatabaseWidget::reloadDatabaseFile()
         // Mark db as modified since existing data may differ from file or file was deleted
         m_db->markAsModified();
     }
+
+    // Return control
+    m_entryView->setDisabled(false);
+    m_groupView->setDisabled(false);
 }
 
 int DatabaseWidget::numberOfSelectedEntries() const
@@ -1637,10 +1663,19 @@ bool DatabaseWidget::save()
     m_blockAutoSave = true;
     ++m_saveAttempts;
 
-    // TODO: Make this async, but lock out the database widget to prevent re-entrance
+    // TODO: Make this async
+    // Lock out interactions
+    m_entryView->setDisabled(true);
+    m_groupView->setDisabled(true);
+    QApplication::processEvents();
+
     bool useAtomicSaves = config()->get("UseAtomicSaves", true).toBool();
     QString errorMessage;
     bool ok = m_db->save(&errorMessage, useAtomicSaves, config()->get("BackupBeforeSave").toBool());
+
+    // Return control
+    m_entryView->setDisabled(false);
+    m_groupView->setDisabled(false);
 
     if (ok) {
         m_saveAttempts = 0;
@@ -1761,7 +1796,7 @@ void DatabaseWidget::processAutoOpen()
     }
 
     for (const auto* entry : autoopenGroup->entries()) {
-        if (entry->url().isEmpty() || entry->password().isEmpty()) {
+        if (entry->url().isEmpty() || (entry->password().isEmpty() && entry->username().isEmpty())) {
             continue;
         }
         QFileInfo filepath;

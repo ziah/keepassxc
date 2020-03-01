@@ -740,10 +740,6 @@ Please select the correct database for saving credentials.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>KeePassXC-Browser is needed for the browser integration to work. &lt;br /&gt;Download it for %1 and %2. %3</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>&amp;Brave</source>
         <translation type="unfinished"></translation>
     </message>
@@ -785,6 +781,14 @@ Please select the correct database for saving credentials.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning&lt;/b&gt;, the keepassxc-proxy application was not found!&lt;br /&gt;Please check the KeePassXC installation directory or confirm the custom path in advanced options.&lt;br /&gt;Browser integration WILL NOT WORK without the proxy application.&lt;br /&gt;Expected Path: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Edge</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>KeePassXC-Browser is needed for the browser integration to work. &lt;br /&gt;Download it for %1 and %2 and %3. %4</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2340,6 +2344,14 @@ Disable safe saves and try again?</translation>
         <source>Are you sure you want to remove this URL?</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Reveal</source>
+        <translation type="unfinished">Reveal</translation>
+    </message>
+    <message>
+        <source>Hide</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>EditEntryWidgetAdvanced</name>
@@ -2519,6 +2531,14 @@ Disable safe saves and try again?</translation>
     </message>
     <message>
         <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only send this setting to the browser for HTTP Auth dialogs. If enabled, normal login forms will not show this entry for selection.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use this entry only with HTTP Basic Auth</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3456,6 +3476,13 @@ This may cause the affected plugins to malfunction.</translation>
     </message>
 </context>
 <context>
+    <name>EntryURLModel</name>
+    <message>
+        <source>Invalid URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EntryView</name>
     <message>
         <source>Customize View</source>
@@ -3506,6 +3533,40 @@ This may cause the affected plugins to malfunction.</translation>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
+    </message>
+</context>
+<context>
+    <name>FdoSecrets::SettingsDatabaseModel</name>
+    <message>
+        <source>File Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation type="unfinished">Group</translation>
+    </message>
+    <message>
+        <source>Manage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unlock to show</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FdoSecrets::SettingsSessionModel</name>
+    <message>
+        <source>Application</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4696,6 +4757,40 @@ Expect some bugs and minor issues, this version is not meant for production use.
     </message>
     <message>
         <source>&amp;Keyboard Shortcuts</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ManageDatabase</name>
+    <message>
+        <source>Database settings</source>
+        <translation type="unfinished">Database settings</translation>
+    </message>
+    <message>
+        <source>Edit database settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unlock database</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unlock database to show more information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lock database</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ManageSession</name>
+    <message>
+        <source>Disconnect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disconnect this application</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -6577,59 +6672,11 @@ Kernel: %3 %4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>File Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Group</source>
-        <translation type="unfinished">Group</translation>
-    </message>
-    <message>
-        <source>Manage</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Authorization</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>These applications are currently connected:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Application</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Disconnect</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Database settings</source>
-        <translation type="unfinished">Database settings</translation>
-    </message>
-    <message>
-        <source>Edit database settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unlock database</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unlock database to show more information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Lock database</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Unlock to show</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>None</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -7074,6 +7121,13 @@ Example: JBSWY3DPEHPK3PXP</source>
     </message>
     <message>
         <source>Are you sure you want to delete TOTP settings for this entry?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>URLEdit</name>
+    <message>
+        <source>Invalid URL</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

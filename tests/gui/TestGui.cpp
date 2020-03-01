@@ -54,6 +54,7 @@
 #include "gui/CloneDialog.h"
 #include "gui/DatabaseTabWidget.h"
 #include "gui/DatabaseWidget.h"
+#include "gui/EntryPreviewWidget.h"
 #include "gui/FileDialog.h"
 #include "gui/MessageBox.h"
 #include "gui/PasswordEdit.h"
@@ -79,6 +80,10 @@ static QString dbFileName = QStringLiteral(KEEPASSX_TEST_DATA_DIR).append("/NewD
 
 void TestGui::initTestCase()
 {
+    Application::setApplicationName("KeePassXC");
+    Application::setApplicationVersion(KEEPASSXC_VERSION);
+    QApplication::setQuitOnLastWindowClosed(false);
+
     QVERIFY(Crypto::init());
     Config::createTempFileInstance();
     // Disable autosave so we can test the modified file indicator
@@ -91,11 +96,12 @@ void TestGui::initTestCase()
     // Disable the update check first time alert
     config()->set("UpdateCheckMessageShown", true);
 
-    m_mainWindow.reset(new MainWindow());
-    Bootstrap::restoreMainWindowState(*m_mainWindow);
     Bootstrap::bootstrapApplication();
+
+    m_mainWindow.reset(new MainWindow());
     m_tabWidget = m_mainWindow->findChild<DatabaseTabWidget*>("tabWidget");
     m_mainWindow->show();
+    m_mainWindow->resize(1024, 768);
 }
 
 // Every test starts with opening the temp database
@@ -176,7 +182,7 @@ void TestGui::testSettingsDefaultTabOrder()
 
 void TestGui::testCreateDatabase()
 {
-    QTimer::singleShot(0, this, SLOT(createDatabaseCallback()));
+    QTimer::singleShot(50, this, SLOT(createDatabaseCallback()));
     triggerAction("actionDatabaseNew");
 
     // there is a new empty db
@@ -962,6 +968,7 @@ void TestGui::testDeleteEntry()
     QWidget* entryDeleteWidget = toolBar->widgetForAction(entryDeleteAction);
     entryView->setFocus();
 
+    // Move one entry to the recycling bin
     QCOMPARE(m_dbWidget->currentMode(), DatabaseWidget::Mode::ViewMode);
     clickIndex(entryView->model()->index(1, 1), entryView, Qt::LeftButton);
     QVERIFY(entryDeleteWidget->isVisible());
@@ -974,6 +981,7 @@ void TestGui::testDeleteEntry()
     QCOMPARE(entryView->model()->rowCount(), 3);
     QCOMPARE(m_db->metadata()->recycleBin()->entries().size(), 1);
 
+    // Select multiple entries and move them to the recycling bin
     clickIndex(entryView->model()->index(1, 1), entryView, Qt::LeftButton);
     clickIndex(entryView->model()->index(2, 1), entryView, Qt::LeftButton, Qt::ControlModifier);
     QCOMPARE(entryView->selectionModel()->selectedRows().size(), 2);
@@ -988,6 +996,7 @@ void TestGui::testDeleteEntry()
     QCOMPARE(entryView->model()->rowCount(), 1);
     QCOMPARE(m_db->metadata()->recycleBin()->entries().size(), 3);
 
+    // Go to the recycling bin
     QCOMPARE(groupView->currentGroup(), m_db->rootGroup());
     QModelIndex rootGroupIndex = groupView->model()->index(0, 0);
     clickIndex(groupView->model()->index(groupView->model()->rowCount(rootGroupIndex) - 1, 0, rootGroupIndex),
@@ -995,6 +1004,7 @@ void TestGui::testDeleteEntry()
                Qt::LeftButton);
     QCOMPARE(groupView->currentGroup()->name(), m_db->metadata()->recycleBin()->name());
 
+    // Delete one entry from the bin
     clickIndex(entryView->model()->index(0, 1), entryView, Qt::LeftButton);
     MessageBox::setNextAnswer(MessageBox::Cancel);
     QTest::mouseClick(entryDeleteWidget, Qt::LeftButton);
@@ -1006,6 +1016,7 @@ void TestGui::testDeleteEntry()
     QCOMPARE(entryView->model()->rowCount(), 2);
     QCOMPARE(m_db->metadata()->recycleBin()->entries().size(), 2);
 
+    // Select the remaining entries and delete them
     clickIndex(entryView->model()->index(0, 1), entryView, Qt::LeftButton);
     clickIndex(entryView->model()->index(1, 1), entryView, Qt::LeftButton, Qt::ControlModifier);
     MessageBox::setNextAnswer(MessageBox::Delete);
@@ -1013,6 +1024,16 @@ void TestGui::testDeleteEntry()
     QCOMPARE(entryView->model()->rowCount(), 0);
     QCOMPARE(m_db->metadata()->recycleBin()->entries().size(), 0);
 
+    // Ensure the entry preview widget shows the recycling group since all entries are deleted
+    auto* previewWidget = m_dbWidget->findChild<EntryPreviewWidget*>("previewWidget");
+    QVERIFY(previewWidget);
+    auto* groupTitleLabel = previewWidget->findChild<QLabel*>("groupTitleLabel");
+    QVERIFY(groupTitleLabel);
+
+    QTRY_VERIFY(groupTitleLabel->isVisible());
+    QVERIFY(groupTitleLabel->text().contains(m_db->metadata()->recycleBin()->name()));
+
+    // Go back to the root group
     clickIndex(groupView->model()->index(0, 0), groupView, Qt::LeftButton);
     QCOMPARE(groupView->currentGroup(), m_db->rootGroup());
 }
@@ -1435,8 +1456,9 @@ int TestGui::addCannedEntries()
 
 void TestGui::checkDatabase(QString dbFileName)
 {
-    if (dbFileName.isEmpty())
+    if (dbFileName.isEmpty()) {
         dbFileName = m_dbFilePath;
+    }
 
     auto key = QSharedPointer<CompositeKey>::create();
     key->addKey(QSharedPointer<PasswordKey>::create("a"));
